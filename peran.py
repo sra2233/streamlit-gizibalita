@@ -65,7 +65,7 @@ with col1:
     st.write("Kelola data balita")
 
     if st.button("Masuk sebagai Admin"):
-        st.switch_page("pages/loginadmin.py")
+        st.switch_page("loginadmin.py")
 
     st.markdown("</div>", unsafe_allow_html=True)
 
@@ -82,6 +82,6 @@ with col2:
     st.write("Cek status gizi anak")
 
     if st.button("Masuk sebagai Orang Tua"):
-        st.switch_page("pages/inputdata.py")
+        st.switch_page("inputdata.py")
 
     st.markdown("</div>", unsafe_allow_html=True)
