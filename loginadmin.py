@@ -92,7 +92,7 @@ if login:
 
     if data:
         st.success("Login berhasil")
-        st.switch_page("inputdataadmin.py")
+        st.switch_page("pages/inputdataadmin.py")
 
     else:
         st.error("Username atau password salah")
