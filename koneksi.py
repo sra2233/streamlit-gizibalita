@@ -9,8 +9,4 @@ def koneksi_db():
         database=st.secrets["railway"],
         port=int(st.secrets["MYSQLPORT"])
     )
-<<<<<<< HEAD
     return conn
-=======
-    return conn
->>>>>>> 836341f (update koneksi)
