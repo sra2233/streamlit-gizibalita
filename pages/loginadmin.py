@@ -1,8 +1,4 @@
 import streamlit as st
-<<<<<<< HEAD
-st.write("TES ADMIN")
-=======
->>>>>>> bac9dfd8816f6b97565492f9e6797cd801312565
 from koneksi import koneksi_db
 
 st.set_page_config(initial_sidebar_state="collapsed")
