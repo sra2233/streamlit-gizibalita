@@ -1,5 +1,12 @@
+<<<<<<< HEAD
 numpy==2.4.1
 pandas==2.3.3
 streamlit
 pip==25.2
+=======
+numpy==2.4.1
+pandas==2.3.3
+streamlit
+pip==25.2
+>>>>>>> d9b8330000d82b0dac85b36a72419f059da0d847
 mysql.connector
