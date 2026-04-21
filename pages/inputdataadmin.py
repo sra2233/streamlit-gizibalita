@@ -308,7 +308,6 @@ if "z" in st.session_state:
     # Tombol simpan
     col1, col2 = st.columns(2)
 
-<<<<<<< HEAD
     with col1:
         if st.button("Simpan Data", type="primary", key="btn_simpan"):
 
@@ -328,7 +327,7 @@ if "z" in st.session_state:
                 berat,
                 st.session_state.z,
                 st.session_state.status
-=======
+            ))
 with col1:
     if st.button("Simpan Data", type="primary", key="btn_simpan"):
 
@@ -348,7 +347,6 @@ with col1:
             berat,
             st.session_state.z,
             st.session_state.status
->>>>>>> 41bd7aace5b5fe9acbb57144f7fbbb617cc86f27
         ))
 
         conn.commit()
@@ -357,8 +355,6 @@ with col1:
 
         st.switch_page("pages/databalita.py")
 
-
-<<<<<<< HEAD
     with col2:
         if st.button("Hapus / Reset"):
 
@@ -366,15 +362,6 @@ with col1:
             st.session_state.pop("status", None)
 
             st.success("Data berhasil direset")
-=======
-with col2:
-    if st.button("Hapus / Reset"):
-
-        st.session_state.pop("z", None)
-        st.session_state.pop("status", None)
-
-        st.success("Data berhasil direset")
->>>>>>> 41bd7aace5b5fe9acbb57144f7fbbb617cc86f27
 
 # ======================
 # UPLOAD EXCEL / CSV
