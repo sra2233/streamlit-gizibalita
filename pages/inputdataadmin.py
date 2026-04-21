@@ -260,7 +260,7 @@ if berat <= 0:
 
 if st.button("Hitung Status Gizi", type="secondary"):
 
-    z = hitung_zscore(berat,jk,usia)
+    z = hitung_zscore(berat, jk, usia)
 
     if z is None:
         st.error("Data WHO tidak ditemukan untuk usia tersebut")
@@ -270,112 +270,87 @@ if st.button("Hitung Status Gizi", type="secondary"):
         st.session_state.z = z
         st.session_state.status = status
 
+        # simpan hasil langsung
+        st.session_state.hasil = pd.DataFrame([{
+            "Nama": nama,
+            "Jenis Kelamin": jk,
+            "Usia (Bulan)": usia,
+            "Berat Badan": berat,
+            "Z-Score": z,
+            "Status": status
+        }])
+
+
 # ======================
 # TAMPILKAN HASIL
 # ======================
-
-if "z" in st.session_state:
-
-    # Judul diperbesar & ditengah
+if "hasil" in st.session_state:
     st.markdown(
         "<h2 style='text-align:center;'>Hasil Perhitungan</h2>",
         unsafe_allow_html=True
     )
 
-    # Data tabel
-    data_hasil = pd.DataFrame({
-        "Keterangan": [
-            "Nama Anak",
-            "Jenis Kelamin",
-            "Usia (bulan)",
-            "Berat Badan (kg)",
-            "Skor Z",
-            "Status Gizi"
-        ],
-        "Hasil": [
-            nama,
-            jk,
-            usia,
-            berat,
-            st.session_state.z,
-            st.session_state.status
-        ]
-    })
+    st.dataframe(
+        st.session_state.hasil,
+        hide_index=True,
+        use_container_width=True
+    )
 
-    # Tabel tanpa nomor (index)
-    st.dataframe(data_hasil, hide_index=True, use_container_width=True)
 
-    # Tombol simpan
-    col1, col2 = st.columns(2)
+# ======================
+# TOMBOL SIMPAN
+# ======================
+col1, col2 = st.columns(2)
 
-<<<<<<< HEAD
-    with col1:
-        if st.button("Simpan Data", type="primary", key="btn_simpan"):
-
-            conn = koneksi_db()
-            cursor = conn.cursor()
-
-            query = """
-            INSERT INTO balita
-            (nama,jenis_kelamin,usia,berat,zscore,status)
-            VALUES (%s,%s,%s,%s,%s,%s)
-            """
-
-            cursor.execute(query,(
-                nama,
-                jk,
-                usia,
-                berat,
-                st.session_state.z,
-                st.session_state.status
-=======
 with col1:
     if st.button("Simpan Data", type="primary", key="btn_simpan"):
 
-        conn = koneksi_db()
-        cursor = conn.cursor()
+        # VALIDASI dulu
+        if "z" not in st.session_state or "status" not in st.session_state:
+            st.warning("Silakan hitung status gizi terlebih dahulu")
+        else:
+            try:
+                conn = koneksi_db()
+                cursor = conn.cursor()
 
-        query = """
-        INSERT INTO balita
-        (nama,jenis_kelamin,usia,berat,zscore,status)
-        VALUES (%s,%s,%s,%s,%s,%s)
-        """
+                query = """
+                INSERT INTO balita
+                (nama, jenis_kelamin, usia, berat, zscore, status)
+                VALUES (%s, %s, %s, %s, %s, %s)
+                """
 
-        cursor.execute(query,(
-            nama,
-            jk,
-            usia,
-            berat,
-            st.session_state.z,
-            st.session_state.status
->>>>>>> 41bd7aace5b5fe9acbb57144f7fbbb617cc86f27
-        ))
+                cursor.execute(query, (
+                    nama,
+                    jk,
+                    usia,
+                    berat,
+                    st.session_state.z,
+                    st.session_state.status
+                ))
 
-        conn.commit()
+                conn.commit()
 
-        st.success("Data berhasil disimpan")
+                st.success("Data berhasil disimpan")
 
-        st.switch_page("pages/databalita.py")
+                cursor.close()
+                conn.close()
+
+                st.switch_page("pages/databalita.py")
+
+            except Exception as e:
+                st.error(f"Gagal menyimpan data: {e}")
 
 
-<<<<<<< HEAD
-    with col2:
-        if st.button("Hapus / Reset"):
-
-            st.session_state.pop("z", None)
-            st.session_state.pop("status", None)
-
-            st.success("Data berhasil direset")
-=======
 with col2:
-    if st.button("Hapus / Reset"):
+    if st.button("Hapus"):
 
-        st.session_state.pop("z", None)
-        st.session_state.pop("status", None)
+        keys_to_remove = ["z", "status", "hasil"]
 
-        st.success("Data berhasil direset")
->>>>>>> 41bd7aace5b5fe9acbb57144f7fbbb617cc86f27
+        for key in keys_to_remove:
+            st.session_state.pop(key, None)
 
+        st.rerun()
+    
 # ======================
 # UPLOAD EXCEL / CSV
 # ======================

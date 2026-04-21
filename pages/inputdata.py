@@ -239,25 +239,15 @@ if "z" in st.session_state:
 
     st.markdown("<h3 style='text-align:center;'>Hasil Perhitungan</h3>", unsafe_allow_html=True)
 
-    data_hasil = pd.DataFrame({
-        "Keterangan": [
-            "Nama Anak",
-            "Jenis Kelamin",
-            "Usia (bulan)",
-            "Berat Badan (kg)",
-            "Z Score",
-            "Status Gizi"
-        ],
-        "Hasil": [
-            st.session_state.nama,
-            st.session_state.jk,
-            st.session_state.usia,
-            st.session_state.berat,
-            f"{st.session_state.z:.2f}",
-            st.session_state.status
-        ]
-    })
-
+    data_hasil = pd.DataFrame([{
+        "Nama": st.session_state.nama,
+        "Jenis Kelamin": st.session_state.jk,
+        "Usia (bulan)": st.session_state.usia,
+        "Berat Badan (kg)": st.session_state.berat,
+        "Z Score": round(st.session_state.z, 2),
+        "Status Gizi": st.session_state.status
+    }])
+    
     # tampilkan tabel tanpa nomor
     st.dataframe(data_hasil, hide_index=True, use_container_width=True)
 
