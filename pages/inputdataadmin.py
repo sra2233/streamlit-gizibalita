@@ -303,43 +303,37 @@ if "hasil" in st.session_state:
 col1, col2 = st.columns(2)
 
 with col1:
-    if st.button("Simpan Data", type="primary", key="btn_simpan"):
+        if st.button("Simpan Data", type="primary", key="btn_simpan"):
 
-        # VALIDASI dulu
-        if "z" not in st.session_state or "status" not in st.session_state:
-            st.warning("Silakan hitung status gizi terlebih dahulu")
-        else:
-            try:
-                conn = koneksi_db()
-                cursor = conn.cursor()
+            conn = koneksi_db()
+            cursor = conn.cursor()
 
-                query = """
-                INSERT INTO balita
-                (nama, jenis_kelamin, usia, berat, zscore, status)
-                VALUES (%s, %s, %s, %s, %s, %s)
-                """
+            query = """
+            INSERT INTO balita
+            (nama,jenis_kelamin,usia,berat,zscore,status)
+            VALUES (%s,%s,%s,%s,%s,%s)
+            """
 
-                cursor.execute(query, (
-                    nama,
-                    jk,
-                    usia,
-                    berat,
-                    st.session_state.z,
-                    st.session_state.status
-                ))
+            cursor.execute(query,(
+                nama,
+                jk,
+                usia,
+                berat,
+                st.session_state.z,
+                st.session_state.status
+            ))
 
-                conn.commit()
+            conn.commit()
 
-                st.success("Data berhasil disimpan")
+            st.success("Data berhasil disimpan")
 
-                cursor.close()
-                conn.close()
+            cursor.close()
+            conn.close()
 
-                st.switch_page("pages/databalita.py")
+            st.switch_page("pages/databalita.py")
 
             except Exception as e:
-                st.error(f"Gagal menyimpan data: {e}")
-
+            st.error(f"Gagal menyimpan data: {e}")
 
 with col2:
     if st.button("Hapus"):
@@ -349,7 +343,6 @@ with col2:
         for key in keys_to_remove:
             st.session_state.pop(key, None)
 
-        st.rerun()
     
 # ======================
 # UPLOAD EXCEL / CSV
