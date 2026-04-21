@@ -314,26 +314,27 @@ with col1:
             VALUES (%s,%s,%s,%s,%s,%s)
             """
 
-            cursor.execute(query,(
-                nama,
-                jk,
-                usia,
-                berat,
-                st.session_state.z,
-                st.session_state.status
-            ))
+            try :
+                cursor.execute(query,(
+                    nama,
+                    jk,
+                    usia,
+                    berat,
+                    st.session_state.z,
+                    st.session_state.status
+                ))
 
-            conn.commit()
+                conn.commit()
 
-            st.success("Data berhasil disimpan")
+                st.success("Data berhasil disimpan")
 
-            cursor.close()
-            conn.close()
+                cursor.close()
+                conn.close()
 
-            st.switch_page("pages/databalita.py")
+                st.switch_page("pages/databalita.py")
 
             except Exception as e:
-            st.error(f"Gagal menyimpan data: {e}")
+                st.error(f"Gagal menyimpan data: {e}")
 
 with col2:
     if st.button("Hapus"):
