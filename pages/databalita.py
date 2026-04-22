@@ -63,13 +63,11 @@ with st.sidebar:
 # HALAMAN DATA BALITA
 # ==========================
 
-st.title("Data Balita")
+st.title(" Data Balita")
 
 response = supabase.table("balita").select("*").order("id", desc=True).execute()
 
 df = pd.DataFrame(response.data)
-
-st.subheader("Daftar Data Balita")
 
 st.dataframe(df, use_container_width=True, hide_index=True)
 
