@@ -1,5 +1,6 @@
 import streamlit as st
-from koneksi import koneksi_db
+from koneksi import koneksi_supabase
+supabase = koneksi_supabase()
 
 st.set_page_config(initial_sidebar_state="collapsed")
 
@@ -82,15 +83,11 @@ with col3:
 
 if login:
 
-    conn = koneksi_db()
-    cursor = conn.cursor()
+    data = supabase.table("admin").select("*").eq("username", username).eq("password", password).execute()
 
-    query = "SELECT * FROM admin WHERE username=%s AND password=%s"
-    cursor.execute(query,(username,password))
+    st.write(username, password)
 
-    data = cursor.fetchone()
-
-    if data:
+    if data.data:
         st.success("Login berhasil")
         st.switch_page("pages/inputdataadmin.py")
 

@@ -1,7 +1,8 @@
 import streamlit as st
-from koneksi import koneksi_db
+from koneksi import koneksi_supabase
 import pandas as pd
 import math
+supabase = koneksi_supabase()
 
 # ==========================
 # CONFIG
@@ -303,38 +304,24 @@ if "hasil" in st.session_state:
 col1, col2 = st.columns(2)
 
 with col1:
-        if st.button("Simpan Data", type="primary", key="btn_simpan"):
+       if st.button("Simpan Data", type="primary", key="btn_simpan"):
 
-            conn = koneksi_db()
-            cursor = conn.cursor()
+        try:
+            supabase.table("balita").insert({
+                "nama": nama,
+                "jenis_kelamin": jk,
+                "usia": usia,
+                "berat": berat,
+                "zscore": st.session_state.z,
+                "status": st.session_state.status
+            }).execute()
 
-            query = """
-            INSERT INTO balita
-            (nama,jenis_kelamin,usia,berat,zscore,status)
-            VALUES (%s,%s,%s,%s,%s,%s)
-            """
+            st.success("Data berhasil disimpan")
 
-            try :
-                cursor.execute(query,(
-                    nama,
-                    jk,
-                    usia,
-                    berat,
-                    st.session_state.z,
-                    st.session_state.status
-                ))
+            st.switch_page("pages/databalita.py")
 
-                conn.commit()
-
-                st.success("Data berhasil disimpan")
-
-                cursor.close()
-                conn.close()
-
-                st.switch_page("pages/databalita.py")
-
-            except Exception as e:
-                st.error(f"Gagal menyimpan data: {e}")
+        except Exception as e:
+            st.error(f"Gagal menyimpan data: {e}")
 
 with col2:
     if st.button("Hapus"):
@@ -377,7 +364,7 @@ if file:
         "nama anak": "nama",
         "nama balita": "nama",
         "nama_anak": "nama",
-        "NAMA": "nama,",
+        "NAMA": "nama",
         "NAMA_ANAK":"nama",
 
         # jenis kelamin
@@ -429,10 +416,7 @@ if file:
 
     if st.button("Simpan Semua Data"):
 
-        conn = koneksi_db()
-        cursor = conn.cursor()
-
-        for i,row in df.iterrows():
+        for i, row in df.iterrows():
 
             z = hitung_zscore(
                 row["berat"],
@@ -440,31 +424,19 @@ if file:
                 int(row["usia"])
             )
 
-            # jika zscore tidak ada maka skip
             if z is None:
                 continue
 
             status = status_gizi(z)
 
-            query = """
-            INSERT INTO balita
-            (nama,jenis_kelamin,usia,berat,zscore,status)
-            VALUES (%s,%s,%s,%s,%s,%s)
-            """
-
-            cursor.execute(query,(
-
-                row["nama"],
-                row["jenis_kelamin"],
-                int(row["usia"]),
-                row["berat"],
-                z,
-                status
-
-            ))
-
-        conn.commit()
+            supabase.table("balita").insert({
+                "nama": row["nama"],
+                "jenis_kelamin": row["jenis_kelamin"],
+                "usia": int(row["usia"]),
+                "berat": row["berat"],
+                "zscore": z,
+                "status": status
+            }).execute()
 
         st.success("Semua data berhasil disimpan")
-
         st.switch_page("pages/databalita.py")

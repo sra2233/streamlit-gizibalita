@@ -1,11 +1,7 @@
-import mysql.connector
+from supabase import create_client
 import streamlit as st
 
-def koneksi_db():
-    conn = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="",
-        database="posyandu"
-    )
-    return conn
+def koneksi_supabase():
+    url = st.secrets["supabase"]["url"]
+    key = st.secrets["supabase"]["key"]
+    return create_client(url, key)

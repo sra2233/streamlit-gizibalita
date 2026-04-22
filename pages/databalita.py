@@ -1,5 +1,6 @@
 import streamlit as st
-from koneksi import koneksi_db
+from koneksi import koneksi_supabase
+supabase = koneksi_supabase()
 import pandas as pd
 
 # ==========================
@@ -64,12 +65,11 @@ with st.sidebar:
 
 st.title("Data Balita")
 
-conn = koneksi_db()
+response = supabase.table("balita").select("*").order("id", desc=True).execute()
 
-query = "SELECT * FROM balita"
-df = pd.read_sql(query, conn)
+df = pd.DataFrame(response.data)
 
-st.subheader("Data Balita")
+st.subheader("Daftar Data Balita")
 
 st.dataframe(df, use_container_width=True, hide_index=True)
 
@@ -103,12 +103,7 @@ if not df.empty:
 
     if st.button("Hapus Data", type="secondary"):
 
-        cursor = conn.cursor()
-
-        query_hapus = "DELETE FROM balita WHERE id=%s"
-
-        cursor.execute(query_hapus, (pilih_id,))
-        conn.commit()
+        supabase.table("balita").delete().eq("id", pilih_id).execute()
 
         st.success("Data berhasil dihapus")
 
@@ -130,11 +125,7 @@ with col1:
 
         if konfirmasi:
 
-            cursor = conn.cursor()
-
-            cursor.execute("TRUNCATE TABLE balita")
-
-            conn.commit()
+            supabase.table("balita").delete().neq("id", 0).execute()
 
             st.success("Semua data berhasil dihapus dan ID kembali ke 1")
 
