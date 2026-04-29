@@ -1,26 +1,122 @@
 import streamlit as st
 import math
 import pandas as pd
+import base64
 
 # Hilangkan sidebar
 st.set_page_config(initial_sidebar_state="collapsed")
+def get_base64_image(image_path):
+    with open(image_path, "rb") as img_file:
+        return base64.b64encode(img_file.read()).decode()
 
-st.markdown("""
+img_base64 = get_base64_image("pages/background.jpg")
+
+#
+st.markdown(f"""
 <style>
-[data-testid="stSidebar"] {display:none;}
-            
-/* Default tombol = ORANGE */
-div.stButton > button {
-    background-color: #ff9800;
-    color: white;
-    border-radius: 8px;
-}
 
-/* HITUNG (primary) tetap BIRU */
-div.stButton > button[kind="primary"] {
-    background-color: #1f77ff;
-}
-        
+/* =========================
+   BACKGROUND LOGIN
+   ========================= */
+[data-testid="stAppViewContainer"] {{
+    background-image: url("data:image/jpg;base64,{img_base64}");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}}
+
+/* overlay gelap hijau army */
+[data-testid="stAppViewContainer"]::before {{
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(27, 46, 36, 0.85);  /* sedikit lebih enak dari 0.90 */
+    z-index: 0;
+    pointer-events: none;
+}}
+
+/* konten di atas background */
+.main {{
+    position: relative;
+    z-index: 1;
+}}
+
+/* =========================
+   SIDEBAR
+   ========================= */
+[data-testid="stSidebar"] {{
+    display:none;
+}}
+
+/* =========================
+   TEKS CENTER
+   ========================= */
+
+/* judul utama Streamlit */
+h1 {{
+    text-align: center;
+    color: white;
+    font-weight: 800;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.6);
+}}
+
+/* subjudul / teks biasa */
+h2, h3, h4, p {{
+    text-align: center;
+    color: white;
+    font-weight: 600;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}}
+
+.center-text {{
+    text-align:center;
+    font-weight: 700;
+    color: white;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}}
+
+.center-box {{
+    text-align:center;
+    font-weight: 700;
+    color: white;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}}
+
+label {{
+    font-size: 20px !important;
+    font-weight: 700 !important;
+    color: white !important;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}}
+
+/* =========================
+   BUTTON
+   ========================= */
+.stButton > button {{
+    background-color: rgba(20, 83, 45, 0.80);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 22px;
+    font-weight: 600;
+    transition: 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.20);
+}}
+
+.stButton > button:hover {{
+    background: #111827;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}}
+
+.stButton > button:active {{
+    transform: scale(0.98);
+}}
+
 </style>
 """, unsafe_allow_html=True)
 

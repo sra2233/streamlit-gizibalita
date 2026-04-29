@@ -2,6 +2,7 @@ import streamlit as st
 from koneksi import koneksi_supabase
 import pandas as pd
 import math
+import base64
 supabase = koneksi_supabase()
 
 # ==========================
@@ -10,29 +11,91 @@ supabase = koneksi_supabase()
 
 st.set_page_config(initial_sidebar_state="expanded")
 
+def get_base64_image(image_path):
+    with open(image_path, "rb") as img_file:
+        return base64.b64encode(img_file.read()).decode()
+img_base64 = get_base64_image("pages/background.jpg")
+
 # ==========================
 # CSS STYLE
 # ==========================
 
-st.markdown("""
+st.markdown(f"""
 <style>
 
-/* Hilangkan navigasi bawaan streamlit */
-[data-testid="stSidebarNav"] {display:none;}
+/* ========================
+   BACKGROUND IMAGE
+   ======================== */
+[data-testid="stAppViewContainer"] {{
+    background-image: url("data:image/jpg;base64,{img_base64}");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}}
 
-/* Tombol Hitung Status Gizi (BIRU) */
-button[kind="secondary"] {
-    background-color: #1f77ff;
-    color: white;
-    border-radius: 8px;
-}
+/* overlay hijau army  */
+[data-testid="stAppViewContainer"]::before {{
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(27, 46, 36, 0.90);
+    z-index: 0;
+    pointer-events: none;
+}}
 
-/* Tombol Simpan Data (HIJAU) */
-button[kind="primary"] {
-    background-color: #27ae60;
+/* konten di atas */
+.main {{
+    position: relative;
+    z-index: 1;
+}}
+
+/* ========================
+   SIDEBAR
+   ======================== */
+[data-testid="stSidebarNav"] {{
+    display:none;
+}}
+
+/* ========================
+   TEXT
+   ======================== */
+h1 {{
+    text-align: center;
     color: white;
-    border-radius: 8px;
-}
+    font-weight: 800;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}}
+
+label {{
+    color: white !important;
+    font-weight: 600;
+}}
+/* ========================
+   TOMBOL
+   ======================== */
+.stButton > button {{
+    background-color: rgba(20, 83, 45, 0.80);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 22px;
+    font-weight: 600;
+    transition: 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.20);
+}}
+
+.stButton > button:hover {{
+    background: #111827;
+    transform: translateY(-2px);
+}}
+
+.stButton > button:active {{
+    transform: scale(0.98);
+}}
 
 </style>
 """, unsafe_allow_html=True)
@@ -50,8 +113,13 @@ with st.sidebar:
 
     if st.button("Data Balita"):
         st.switch_page("pages/databalita.py")
+    
+    st.markdown("---")  # \
 
+    if st.button("Keluar"):
+        st.switch_page("peran.py")
 
+#
 st.title("Input Data Balita")
 
 # ======================
@@ -229,6 +297,38 @@ def status_gizi(z):
     else:
         return "Gizi Lebih"
 
+# ======================
+# FUNGSI K-MEANS
+# ======================
+
+def hitung_kmeans(usia, berat):
+
+    # centroid
+    c1 = (53.63636364, 14.85454545)
+    c2 = (29.55, 10.27)
+    c3 = (11.29411765, 8.144117647)
+
+    # hitung jarak
+    d1 = math.sqrt((usia - c1[0])**2 + (berat - c1[1])**2)
+    d2 = math.sqrt((usia - c2[0])**2 + (berat - c2[1])**2)
+    d3 = math.sqrt((usia - c3[0])**2 + (berat - c3[1])**2)
+
+    jarak = [d1, d2, d3]
+    min_jarak = min(jarak)
+
+    # tentukan cluster + kategori
+    if min_jarak == d1:
+        cluster = 1
+        kategori = "Usia Tinggi"
+    elif min_jarak == d2:
+        cluster = 2
+        kategori = "Usia Sedang"
+    else:
+        cluster = 3
+        kategori = "Usia Rendah"
+
+    #  RETURN HARUS DI DALAM FUNCTION
+    return round(d1,2), round(d2,2), round(d3,2), cluster
 
 # ======================
 # FORM INPUT
@@ -259,7 +359,7 @@ if berat <= 0:
 # HITUNG
 # ======================
 
-if st.button("Hitung Status Gizi", type="secondary"):
+if st.button("Hitung", type="secondary"):
 
     z = hitung_zscore(berat, jk, usia)
 
@@ -268,15 +368,27 @@ if st.button("Hitung Status Gizi", type="secondary"):
     else:
         status = status_gizi(z)
 
+        # 🔥 K-MEANS
+        d1, d2, d3, cluster, = hitung_kmeans(usia, berat)
+
+        # simpan session
         st.session_state.z = z
         st.session_state.status = status
+        st.session_state.d1 = d1
+        st.session_state.d2 = d2
+        st.session_state.d3 = d3
+        st.session_state.cluster = cluster
 
-        # simpan hasil langsung
+        # hasil lengkap
         st.session_state.hasil = pd.DataFrame([{
             "Nama": nama,
             "Jenis Kelamin": jk,
             "Usia (Bulan)": usia,
             "Berat Badan": berat,
+            "Jarak C1": d1,
+            "Jarak C2": d2,
+            "Jarak C3": d3,
+            "Cluster": cluster,
             "Z-Score": z,
             "Status": status
         }])
@@ -313,7 +425,11 @@ with col1:
                 "usia": usia,
                 "berat": berat,
                 "zscore": st.session_state.z,
-                "status": st.session_state.status
+                "status": st.session_state.status,
+                "c1": st.session_state.d1,
+                "c2": st.session_state.d2,
+                "c3": st.session_state.d3,
+                "cluster": st.session_state.cluster
             }).execute()
 
             st.success("Data berhasil disimpan")
@@ -429,13 +545,22 @@ if file:
 
             status = status_gizi(z)
 
+            d1, d2, d3, cluster = hitung_kmeans(
+                int(row["usia"]),
+                row["berat"]
+            )
+
             supabase.table("balita").insert({
                 "nama": row["nama"],
                 "jenis_kelamin": row["jenis_kelamin"],
                 "usia": int(row["usia"]),
                 "berat": row["berat"],
                 "zscore": z,
-                "status": status
+                "status": status,
+                "c1": d1,
+                "c2": d2,
+                "c3": d3,
+                "cluster": cluster
             }).execute()
 
         st.success("Semua data berhasil disimpan")
