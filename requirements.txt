@@ -4,3 +4,4 @@ streamlit
 pip==25.2
 supabase
 openpyxl
+plotly
