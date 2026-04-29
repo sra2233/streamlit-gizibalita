@@ -152,7 +152,6 @@ if not df.empty:
 
     df_sorted = df.sort_values(by="ID")
 
-    # warna manual (TIDAK bikin grouping)
     colors = []
     for s in df_sorted["Status Gizi"]:
         if s == "Gizi Kurang":
@@ -169,37 +168,22 @@ if not df.empty:
     fig = go.Figure()
 
     fig.add_bar(
-    x=df_sorted["Nama"],
-    y=df_sorted["Nilai Z-Score"],
-    marker_color=colors,
-    width=0.4,
-    hovertext="Nama: " + df_sorted["Nama"] +
-          "<br>Status Gizi: " + df_sorted["Status Gizi"] +
-          "<br>Cluster: " + df_sorted["Cluster"].astype(str) +
-          "<br>Z-Score: " + df_sorted["Nilai Z-Score"].astype(str),
-    hoverinfo="text"
-)
+        x=df_sorted["Nama"],
+        y=df_sorted["Nilai Z-Score"],
+        marker_color=colors,
+        width=0.4
+    )
 
-#
-fig.update_traces(
-    text=df_sorted["Nama"],
-    textposition="outside",
-    textfont=dict(size=8)
-)
+    fig.update_layout(
+        height=450,
+        width=len(df_sorted) * 60
+    )
 
-# 
-fig.update_layout(
-    height=450,
-    width=len(df_sorted) * 60,
-    xaxis_tickangle=-90,
-    xaxis=dict(tickfont=dict(size=10))
-)
+    st.plotly_chart(fig)
 
-st.plotly_chart(
-    fig,
-    use_container_width=False,  
-    config={"scrollZoom": True}
-)
+else:
+    # 
+    st.empty()
 # ==========================
 # DOWNLOAD DATA
 # ==========================
