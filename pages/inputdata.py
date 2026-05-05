@@ -296,7 +296,32 @@ def status_gizi(z):
         return "Gizi Normal"
     else:
         return "Gizi Lebih"
+    
+#
+def hitung_kmeans(usia, berat):
 
+    # centroid (ambil dari hasil admin kamu)
+    c1 = (53.63636364, 14.85454545)
+    c2 = (29.55, 10.27)
+    c3 = (11.29411765, 8.144117647)
+
+    # hitung jarak
+    d1 = math.sqrt((usia - c1[0])**2 + (berat - c1[1])**2)
+    d2 = math.sqrt((usia - c2[0])**2 + (berat - c2[1])**2)
+    d3 = math.sqrt((usia - c3[0])**2 + (berat - c3[1])**2)
+
+    # tentukan cluster
+    if usia <= 20:
+        cluster = 3
+        kategori = "Usia Rendah"
+    elif usia <= 40:
+        cluster = 2
+        kategori = "Usia Sedang"
+    else:
+        cluster = 1
+        kategori = "Usia Tinggi"
+
+    return cluster
 
 # ======================
 # INPUT DATA
@@ -314,18 +339,37 @@ berat = st.number_input("Berat Badan (kg)",0.0)
 # HITUNG STATUS GIZI
 # ======================
 
-if st.button("Hitung Status Gizi", type="primary"):
+if st.button("Hitung", type="primary"):
 
-    z = hitung_zscore(berat,jk,usia)
-    status = status_gizi(z)
+    z = hitung_zscore(berat, jk, usia)
 
-    st.session_state.z = z
-    st.session_state.status = status
-    st.session_state.nama = nama
-    st.session_state.jk = jk
-    st.session_state.usia = usia
-    st.session_state.berat = berat
+    if z is None:
+        st.error("Data WHO tidak ditemukan")
+    else:
+        status = status_gizi(z)
 
+        # K-MEANS
+        cluster = hitung_kmeans(usia, berat)
+
+        # simpan session
+        st.session_state.nama = nama
+        st.session_state.jk = jk
+        st.session_state.usia = usia
+        st.session_state.berat = berat
+        st.session_state.z = z
+        st.session_state.status = status
+        st.session_state.cluster = cluster
+
+        # hasil TANPA jarak
+        st.session_state.hasil = pd.DataFrame([{
+            "Nama": nama,
+            "Jenis Kelamin": jk,
+            "Usia (bulan)": usia,
+            "Berat Badan (kg)": berat,
+            "Z-Score": z,
+            "Status Gizi": status,
+            "Cluster": cluster
+        }])
 
 # ======================
 # TAMPILKAN HASIL
@@ -341,11 +385,52 @@ if "z" in st.session_state:
         "Usia (bulan)": st.session_state.usia,
         "Berat Badan (kg)": st.session_state.berat,
         "Z Score": round(st.session_state.z, 2),
-        "Status Gizi": st.session_state.status
+        "Status Gizi": st.session_state.status,
+        "Cluster": st.session_state.cluster 
     }])
     
     # tampilkan tabel tanpa nomor
     st.dataframe(data_hasil, hide_index=True, use_container_width=True)
+
+    # ======================
+    # KETERANGAN HASIL
+    # ======================
+
+    st.markdown("### Keterangan")
+
+    cluster = st.session_state.cluster
+    status = st.session_state.status
+
+    # mapping penjelasan cluster
+    if cluster == 1:
+        keterangan_cluster = "Cluster 1: Anak usia 41–60 bulan (kelompok usia tinggi)"
+    elif cluster == 2:
+        keterangan_cluster = "Cluster 2: Anak usia 21–40 bulan (kelompok usia sedang)"
+    else:
+        keterangan_cluster = "Cluster 3: Anak usia 0–20 bulan (kelompok usia rendah)"
+
+    # tampilkan keterangan utama
+    st.markdown(f"""
+    - **{keterangan_cluster}**
+    - Berdasarkan perhitungan Z-Score, status gizi anak termasuk **{status}**
+    """)
+
+    # ======================
+    # SARAN / EDUKASI
+    # ======================
+
+    st.markdown("### Saran")
+
+    st.markdown("""
+    Untuk mendapatkan penanganan yang lebih tepat, disarankan:
+
+    - Melakukan konsultasi dengan petugas **Posyandu**
+    - Berkonsultasi dengan **Bidan atau Tenaga Kesehatan**
+    - Memantau pertumbuhan anak secara rutin setiap bulan
+    - Memberikan asupan gizi yang seimbang sesuai usia anak
+
+    Jika terdapat kondisi gizi kurang atau gizi buruk, segera lakukan pemeriksaan lanjutan ke fasilitas kesehatan terdekat.
+    """)
 
     # ======================
     # HAPUS HASIL
@@ -359,7 +444,8 @@ if "z" in st.session_state:
         del st.session_state.jk
         del st.session_state.usia
         del st.session_state.berat
-
+        del st.session_state.cluster
+         
         st.rerun()
 
 

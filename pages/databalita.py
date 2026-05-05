@@ -5,6 +5,7 @@ import base64
 import pandas as pd
 import plotly.graph_objects as go
 from io import BytesIO
+
 # ==========================
 # CONFIG
 # ==========================
@@ -171,7 +172,16 @@ if not df.empty:
         x=df_sorted["Nama"],
         y=df_sorted["Nilai Z-Score"],
         marker_color=colors,
-        width=0.4
+        width=0.4,
+
+        customdata=df_sorted[["Status Gizi", "Cluster", "Usia (Bulan)"]],
+        hovertemplate=
+            "<b>Nama:</b> %{x}<br>" +
+            "<b>Usia (Bulan):</b> %{customdata[2]} bulan<br>" +
+            "<b>Z-Score:</b> %{y}<br>" +
+            "<b>Status Gizi:</b> %{customdata[0]}<br>" +
+            "<b>Cluster:</b> %{customdata[1]}<br>" +
+            "<extra></extra>"
     )
 
     fig.update_layout(

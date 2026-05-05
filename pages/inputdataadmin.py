@@ -317,15 +317,15 @@ def hitung_kmeans(usia, berat):
     min_jarak = min(jarak)
 
     # tentukan cluster + kategori
-    if min_jarak == d1:
-        cluster = 1
-        kategori = "Usia Tinggi"
-    elif min_jarak == d2:
+    if usia <= 20:
+        cluster = 3
+        kategori = "Usia Rendah"
+    elif usia <= 40:
         cluster = 2
         kategori = "Usia Sedang"
     else:
-        cluster = 3
-        kategori = "Usia Rendah"
+        cluster = 1
+        kategori = "Usia Tinggi"
 
     #  RETURN HARUS DI DALAM FUNCTION
     return round(d1,2), round(d2,2), round(d3,2), cluster
@@ -368,7 +368,7 @@ if st.button("Hitung", type="secondary"):
     else:
         status = status_gizi(z)
 
-        # 🔥 K-MEANS
+        # K-MEANS
         d1, d2, d3, cluster, = hitung_kmeans(usia, berat)
 
         # simpan session
@@ -403,12 +403,31 @@ if "hasil" in st.session_state:
         unsafe_allow_html=True
     )
 
-    st.dataframe(
-        st.session_state.hasil,
-        hide_index=True,
-        use_container_width=True
-    )
+    st.dataframe(st.session_state.hasil,hide_index=True,use_container_width=True)
 
+# ======================
+# KETERANGAN HASIL
+# ======================
+
+if "cluster" in st.session_state and "status" in st.session_state:
+
+    st.markdown("### Keterangan")
+
+    cluster = st.session_state.cluster
+    status = st.session_state.status
+
+    # mapping penjelasan cluster
+    if cluster == 1:
+        keterangan_cluster = "Cluster 1: Anak usia 41–60 bulan (kelompok usia tinggi)"
+    elif cluster == 2:
+        keterangan_cluster = "Cluster 2: Anak usia 21–40 bulan (kelompok usia sedang)"
+    else:
+        keterangan_cluster = "Cluster 3: Anak usia 0–20 bulan (kelompok usia rendah)"
+
+    st.markdown(f"""
+    - **{keterangan_cluster}**
+    - Berdasarkan perhitungan Z-Score, status gizi anak termasuk **{status}**
+    """)
 
 # ======================
 # TOMBOL SIMPAN
