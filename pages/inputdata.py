@@ -360,7 +360,7 @@ if st.button("Hitung", type="primary"):
         st.session_state.status = status
         st.session_state.cluster = cluster
 
-        # hasil TANPA jarak
+        # hasil 
         st.session_state.hasil = pd.DataFrame([{
             "Nama": nama,
             "Jenis Kelamin": jk,
@@ -375,7 +375,7 @@ if st.button("Hitung", type="primary"):
 # TAMPILKAN HASIL
 # ======================
 
-if "z" in st.session_state:
+if all(key in st.session_state for key in ["nama","jk","usia","berat","z","status","cluster"]):
 
     st.markdown("<h3 style='text-align:center;'>Hasil Perhitungan</h3>", unsafe_allow_html=True)
 
